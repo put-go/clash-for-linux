@@ -24,6 +24,22 @@ ensure_required_commands
 init_layout
 ensure_dashboard_deploy_prerequisites
 
+install_local_geo_assets() {
+  local name source target
+
+  [ -n "${RESOURCE_DIR:-}" ] || return 0
+  mkdir -p "$RUNTIME_DIR"
+
+  for name in Country.mmdb GeoSite.dat GeoIP.dat; do
+    source="$RESOURCE_DIR/geo/$name"
+    target="$RUNTIME_DIR/$name"
+    [ -s "$source" ] || continue
+    cp -f "$source" "$target"
+  done
+}
+
+install_local_geo_assets
+
 resolve_runtime_kernel
 resolve_yq
 resolve_subconverter
