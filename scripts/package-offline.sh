@@ -3,10 +3,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-PACKAGE_NAME="${1:-clash-for-linux-amd64-offline.zip}"
+PACKAGE_NAME="${1:-clash-for-linux-install.tar.gz}"
 OUT_FILE="$PROJECT_DIR/$PACKAGE_NAME"
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/clash-for-linux-package.XXXXXX")"
-STAGE_DIR="$TMP_DIR/clash-for-linux"
+STAGE_DIR="$TMP_DIR/clash-for-linux-install"
 MIHOMO_VERSION="v1.19.23"
 YQ_VERSION="v4.52.4"
 SUBCONVERTER_VERSION="v0.9.9"
@@ -146,15 +146,16 @@ find "$STAGE_DIR" -name ".DS_Store" -delete
 
 rm -f "$OUT_FILE"
 (
-  cd "$STAGE_DIR"
-  zip -r "$OUT_FILE" . \
-    -x ".git/*" \
-    -x ".github/*" \
-    -x ".gitignore" \
-    -x ".gitattributes" \
-    -x ".editorconfig" \
-    -x ".env" \
-    -x "runtime/*"
+  cd "$(dirname "$STAGE_DIR")"
+  gtar \
+    --exclude='.git' \
+    --exclude='.github' \
+    --exclude='.gitignore' \
+    --exclude='.gitattributes' \
+    --exclude='.editorconfig' \
+    --exclude='.env' \
+    --exclude='runtime' \
+    -czf "$OUT_FILE" "$(basename "$STAGE_DIR")"
 )
 
 echo "$OUT_FILE"
